@@ -1,5 +1,6 @@
 # Bisqwit's Ray Tracer Engine
 Bisqwit's Ray Tracer Engine, written in C, updated to use SDL 2 instead of SDL 1.2 and C99 standard.
+All files and credit goes to [Bisqwit](https://www.youtube.com/user/Bisqwit)
 
 # Modifications
 * Included `inttypes.h` header file.
