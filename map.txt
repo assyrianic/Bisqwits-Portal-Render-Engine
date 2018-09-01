@@ -1,0 +1,74 @@
+# Vertexes (Y coordinate, followed by list of X coordinates)
+vertex	0	0 6 28
+vertex	2	1 17.5
+vertex	5	4 6 18 21
+vertex	6.5	9 11 13 13.5 17.5
+vertex	7	5 7 9 11 13 15 17 19 21
+vertex	7.5	4 6
+vertex	10.5	4 6
+vertex	11	5 7 9 11 13 15 17 19 21
+vertex	11.5	9 11 13 13.5 17.5
+vertex	13	4 6 18 21
+vertex	16	1 17.5
+vertex	18	0 6 28
+# 50
+vertex 7  13.5 8
+vertex 11 13.5 8
+
+# Sectors (floor height, ceiling height, then vertex numbers in clockwise order)
+# After the list of vertexes, comes the list of sector numbers on the "opposite" side of that wall; "x" = none.
+
+# bottom floor
+sector	 0 20	3 14 27 45	x x x x
+sector	 0 20	3 4 13 12 11  10 9 16 15 14	x x x x x  x x x x x
+sector	 0 20	27 28 29 36 37  38 39 40 46 45	x x x x x  x x x x x
+
+# tunnel under stairs
+sector	 0 14	12 13 40 39 52 50	x x x x x x
+
+# hideout under stairs
+sector	 0 12	51 50 52 53	x x x x
+
+# top floor
+sector	16 28	22 8 2 49 44 35		x x x x x x
+sector	16 28	49 48 42 43 44		x x x x x
+sector	16 28	1 2 8 7 6	x x x x x
+
+# top floor end, higher ceiling
+sector	16 36	0 1 6 5 23  25 41 42  48 47	x x x x x  x x x x x
+sector	16 36	23 24 26 25	x x x x
+# top floor middle, lower ceiling
+sector	16 26	6 7 43  42 26 24	x x x x x x
+
+# stairs
+sector	 2 20	14 15 28 27	x x x x
+sector	 4 20	15 16 29 28	x x x x
+sector	 6 20	16 17 30 29	x x x x
+sector	 8 20	17 18 31 30	x x x x
+sector	10 24	18 19 32 31	x x x x
+sector	12 24	19 20 33 32	x x x x
+sector	14 28	20 21 34 33	x x x x
+sector	16 28	21 22 35 34	x x x x
+
+# stairs windows
+sector	 8 14	10 11 18 17	x x x x
+sector	 8 14	30 31 38 37	x x x x
+
+# Player: Location (x y), angle, and sector number
+player	2 9	0	0
+#player 2.3 6 0.4 0
+
+
+
+# Light sources: Location (x z y; xz = 2d coordinates, y = height), sector number, color (r g b)
+light	 2  4 18	0	247 228 170	# left corner of beginning
+light	 2 14 18	0	247 228 170	# right corner of beginning
+light	 9  9 11	4	247 170 112	# in hideout, redder
+light	26  3 26	5	183 204 218	# cold in upstairs, back left corner
+light	26 15 26	5	183 204 218	# cold in upstairs, back right corner
+# A row of small lights upstairs in the back
+light	1.2  3 30	24	247 228 170
+light	1.2  7 30	24	247 228 170
+light	1.2 11 30	24	247 228 170
+light	1.2 15 30	24	247 228 170
+
