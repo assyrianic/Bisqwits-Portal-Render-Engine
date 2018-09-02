@@ -1,5 +1,6 @@
 # Bisqwit's Ray Tracer Engine
 Bisqwit's Ray Tracer Engine, written in C, updated to use SDL 2 instead of SDL 1.2 and C99 standard.
+The code is featured and talked about in [his video on making a Doom 1 style 3D raytracing engine](https://www.youtube.com/watch?v=HQYsFshbkYw)
 All files and credit goes to [Bisqwit](https://www.youtube.com/user/Bisqwit)
 
 # Modifications
