@@ -271,7 +271,7 @@ int main()
 		return 1;
 	}
 	
-	SDL_Window *restrict window = SDL_CreateWindow("Ray-Tracer Engine by Bisqwit", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, W, H, SDL_WINDOW_SHOWN);
+	SDL_Window *restrict window = SDL_CreateWindow("Portal Renderer Engine by Bisqwit", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, W, H, SDL_WINDOW_SHOWN);
 	if (!window) {
 		fprintf(stderr, "Window could not be created: %s\n", SDL_GetError());
 		return 1;
