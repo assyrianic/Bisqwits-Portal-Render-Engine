@@ -4,20 +4,23 @@
 #include <inttypes.h>
 #include <SDL2/SDL.h>
 
-/* Define window size */
-#define W 608
-#define H 480
+enum WindowSize {
+	W = 608,
+	H = 480
+};
+
 /* Define various vision related constants */
-#define EyeHeight  6	// Camera height from floor when standing
-#define DuckHeight 2.5  // And when crouching
-#define HeadMargin 1	// How much room there is above camera before the head hits the ceiling
-#define KneeHeight 2	// How tall obstacles the player can simply walk over without jumping
-#define hfov (0.73f*H)  // Affects the horizontal field of vision
-#define vfov (.2f*H)	// Affects the vertical field of vision
+const float DuckHeight = 2.5f;	// Camera height from floor when standing
+const float hfov = 0.73f * H;   // Affects the horizontal field of vision
+const float vfov = .2f * H;     // Affects the vertical field of vision
+
+enum {
+	HeadMargin = 1, // How much room there is above camera before the head hits the ceiling
+	KneeHeight = 2  // How tall obstacles the player can simply walk over without jumping
+};
 
 /* Sectors: Floor and ceiling height; list of edge vertices and neighbors */
-static struct sector
-{
+static struct sector {
 	float floor, ceil;
 	struct xy { float x,y; } *vertex; // Each vertex has an x and y coordinate
 	int8_t *neighbors;		   // Each edge may have a corresponding neighboring sector
@@ -26,10 +29,11 @@ static struct sector
 static uint32_t NumSectors = 0;
 
 /* Player: location */
-static struct player
-{
-	struct xyz { float x,y,z; } where,	  // Current position
-	velocity;   // Current motion vector
+static struct player {
+	struct xyz { float x,y,z; }
+		where,	 // Current position
+		velocity // Current motion vector
+	;
 	float angle, anglesin, anglecos, yaw;   // Looking towards (and sin() and cos() thereof)
 	uint32_t sector;						// Which sector the player is currently in
 } player;
@@ -52,8 +56,7 @@ static struct player
 	vxs(vxs(x1,y1, x2,y2), (x1)-(x2), vxs(x3,y3, x4,y4), (x3)-(x4)) / vxs((x1)-(x2), (y1)-(y2), (x3)-(x4), (y3)-(y4)), \
 	vxs(vxs(x1,y1, x2,y2), (y1)-(y2), vxs(x3,y3, x4,y4), (y3)-(y4)) / vxs((x1)-(x2), (y1)-(y2), (x3)-(x4), (y3)-(y4)) })
 
-static void LoadData()
-{
+static void LoadData() {
 	FILE *restrict fp = fopen("map-clear.txt", "rt");
 	if(!fp) { perror("map-clear.txt"); exit(1); }
 	char Buf[256], word[256], *ptr;
