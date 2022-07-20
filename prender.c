@@ -58,7 +58,10 @@ static struct player {
 
 static void LoadData() {
 	FILE *restrict fp = fopen("map-clear.txt", "rt");
-	if(!fp) { perror("map-clear.txt"); exit(1); }
+	if( !fp ) {
+		perror("map-clear.txt");
+		exit(1);
+	}
 	char Buf[256], word[256], *ptr;
 	struct xy
 		*restrict vert = NULL,
@@ -66,60 +69,72 @@ static void LoadData() {
 	;
 	int32_t n, m, NumVertices = 0;
 	
-	while(fgets(Buf, sizeof Buf, fp))
-		switch(sscanf(ptr = Buf, "%32s%n", word, &n) == 1 ? word[0] : '\0')
-		{
+	/// technically fgets always returns the buffer, so it's never NULL.
+	while( fgets(Buf, sizeof Buf, fp) != 0 ) {
+		switch( (sscanf(ptr = Buf, "%32s%n", word, &n)==1)? word[0] : '\0' ) {
 			case 'v': // vertex
-				for(sscanf(ptr += n, "%f%n", &v.y, &n); sscanf(ptr += n, "%f%n", &v.x, &n) == 1; )
-					{ vert = realloc(vert, ++NumVertices * sizeof(*vert)); vert[NumVertices-1] = v; }
+				for( sscanf(ptr += n, "%f%n", &v.y, &n); sscanf(ptr += n, "%f%n", &v.x, &n) == 1; ) {
+					vert = realloc(vert, ++NumVertices * sizeof(*vert));
+					vert[NumVertices-1] = v;
+				}
 				break;
 			case 's': // sector
 				sectors = realloc(sectors, ++NumSectors * sizeof(*sectors));
 				struct sector *const restrict sect = &sectors[NumSectors-1];
 				int32_t *restrict num = NULL;
 				sscanf(ptr += n, "%f%f%n", &sect->floor,&sect->ceil, &n);
-				for(m=0; sscanf(ptr += n, "%32s%n", word, &n) == 1 && word[0] != '#'; )
-					{ num = realloc(num, ++m * sizeof(*num)); num[m-1] = word[0]=='x' ? -1 : atoi(word); }
+				for( m=0; sscanf(ptr += n, "%32s%n", word, &n) == 1 && word[0] != '#'; ) {
+					num = realloc(num, ++m * sizeof(*num));
+					num[m-1] = word[0]=='x' ? -1 : atoi(word);
+				}
 				sect->npoints   = m /= 2;
 				sect->neighbors = malloc( (m  ) * sizeof(*sect->neighbors) );
 				sect->vertex	= malloc( (m+1) * sizeof(*sect->vertex)	);
-				for(n=0; n<m; ++n) sect->neighbors[n] = num[m + n];
-				for(n=0; n<m; ++n) sect->vertex[n+1]  = vert[num[n]]; // TODO: Range checking
+				for( n=0; n<m; ++n ) {
+					sect->neighbors[n] = num[m + n];
+				}
+				for( n=0; n<m; ++n ) {
+					sect->vertex[n+1]  = vert[num[n]]; // TODO: Range checking
+				}
 				sect->vertex[0] = sect->vertex[m]; // Ensure the vertexes form a loop
-				free(num), num=NULL;
+				free(num); num = NULL;
 				break;
 			case 'p':; // player
 				float angle;
 				sscanf(ptr += n, "%f %f %f %d", &v.x, &v.y, &angle,&n);
-				player = (struct player) { {v.x, v.y, 0}, {0,0,0}, angle,0,0,0, n }; // TODO: Range checking
+				player = ( struct player ){ {v.x, v.y, 0}, {0,0,0}, angle,0,0,0, n }; // TODO: Range checking
 				player.where.z = sectors[player.sector].floor + EyeHeight;
 		}
+	}
 	fclose(fp);
-	free(vert), vert=NULL;
+	free(vert); vert=NULL;
 }
-static void UnloadData()
-{
-	for(uint32_t a=0; a<NumSectors; ++a) free(sectors[a].vertex), sectors[a].vertex=NULL;
-	for(uint32_t a=0; a<NumSectors; ++a) free(sectors[a].neighbors), sectors[a].neighbors=NULL;
-	free(sectors);
-	sectors	= NULL;
+
+static void UnloadData() {
+	for( size_t a=0; a < NumSectors; a++ ) {
+		free(sectors[a].vertex); sectors[a].vertex = NULL;
+	}
+	for( size_t a=0; a < NumSectors; a++ ) {
+		free(sectors[a].neighbors); sectors[a].neighbors = NULL;
+	}
+	free(sectors); sectors	= NULL;
 	NumSectors = 0;
 }
 
 static SDL_Surface *restrict surface = NULL;
 
-/* vline: Draw a vertical line on screen, with a different color pixel in top & bottom */
-static void vline(const int x, int y1,int y2, const int top, const int middle, const int bottom)
-{
+/** vline: Draw a vertical line on screen, with a different color pixel in top & bottom */
+static void vline(const int x, int y1,int y2, const int top, const int middle, const int bottom) {
 	int32_t *const restrict pix = surface->pixels;
 	y1 = clamp(y1, 0, H-1);
 	y2 = clamp(y2, 0, H-1);
-	if(y2 == y1)
+	if( y2==y1 ) {
 		pix[y1*W+x] = middle;
-	else if(y2 > y1)
-	{
+	} else if( y2 > y1 ) {
 		pix[y1*W+x] = top;
-		for(int y=y1+1; y<y2; ++y) pix[y*W+x] = middle;
+		for( int y=y1+1; y<y2; y++ ) {
+			pix[y*W+x] = middle;
+		}
 		pix[y2*W+x] = bottom;
 	}
 }
@@ -127,10 +142,10 @@ static void vline(const int x, int y1,int y2, const int top, const int middle, c
 /* MovePlayer(dx,dy): Moves the player by (dx,dy) in the map, and
  * also updates their anglesin/anglecos/sector properties properly.
  */
-static void MovePlayer(const float dx, const float dy)
-{
-	const float px = player.where.x, py = player.where.y;
-	/* Check if this movement crosses one of this sector's edges
+static void MovePlayer(const float dx, const float dy) {
+	const float px=player.where.x, py=player.where.y;
+	/**
+	 * Check if this movement crosses one of this sector's edges
 	 * that have a neighboring sector on the other side.
 	 * Because the edge vertices of each sector are defined in
 	 * clockwise order, PointSide will always return -1 for a point
@@ -138,15 +153,14 @@ static void MovePlayer(const float dx, const float dy)
 	 */
 	const struct sector *const restrict sect = &sectors[player.sector];
 	const struct xy *const restrict vert = sect->vertex;
-	for(uint32_t s = 0; s < sect->npoints; ++s)
-		if(sect->neighbors[s] >= 0
+	for( uint32_t s = 0; s < sect->npoints; s++ ) {
+		if( sect->neighbors[s] >= 0
 		&& IntersectBox(px,py, px+dx,py+dy, vert[s+0].x, vert[s+0].y, vert[s+1].x, vert[s+1].y)
-		&& PointSide(px+dx, py+dy, vert[s+0].x, vert[s+0].y, vert[s+1].x, vert[s+1].y) < 0)
-		{
+		&& PointSide(px+dx, py+dy, vert[s+0].x, vert[s+0].y, vert[s+1].x, vert[s+1].y) < 0 ) {
 			player.sector = sect->neighbors[s];
 			break;
 		}
-
+	}
 	player.where.x += dx;
 	player.where.y += dy;
 	player.anglesin = sinf(player.angle);
@@ -155,7 +169,7 @@ static void MovePlayer(const float dx, const float dy)
 
 static void DrawScreen()
 {
-	enum { MaxQueue = 32 };  // maximum number of pending portal renders
+	enum{ MaxQueue = 32 };  // maximum number of pending portal renders
 	struct item { int32_t sectorno,sx1,sx2; } queue[MaxQueue], *head=queue, *tail=queue;
 	int32_t ytop[W]={0}, ybottom[W], renderedsectors[NumSectors];
 	for(uint32_t x=0; x<W; ++x) ybottom[x] = H-1;
